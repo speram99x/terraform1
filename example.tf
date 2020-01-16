@@ -1,6 +1,7 @@
 provider "aws" {
-  profile    = "default"
   region     = "us-east-1"
+  access_key = var.access_id
+  secret_key = var.access_key
 }
 
 resource "aws_instance" "example" {
