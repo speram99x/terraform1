@@ -26,10 +26,10 @@ data "archive_file" "s3-public-access-block-zip" {
 
 resource "aws_lambda_function" "s3_public_access_block_lambda" {
   function_name = "sp-s3-public-access-block-lambda-2"
-  role          = aws_iam_role.SP_ServiceRoleForConfigAndS3.arn
+  role          = "arn:aws:iam::533359187263:role/service-role/SP_ServiceRoleForConfigAndS3"
   handler       = "lambda_handler"
   runtime       = "python3.8"
-  filename      = s3-public-access-block-zip.output_path
+  filename      = "${path.module}/lambdas/s3-public-access-block/zipfile/s3-public-access-block.zip"
   memory_size = "256"
   timeout     = "30"
 }
