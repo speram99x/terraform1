@@ -18,6 +18,12 @@ resource "aws_instance" "example" {
   subnet_id = "subnet-0f4a377c755a5e8ef"
 }
 
+#data "archive_file" "lambda_zip" {
+#    type          = "zip"
+#    source_file   = "index.js"
+#    output_path   = "lambda_function.zip"
+#}
+
 data "archive_file" "s3-public-access-block-zip2" {
   type        = "zip"
   source_file = "${path.module}/lambdas/s3-public-access-block/lambda_function.py"
@@ -29,7 +35,9 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   role          = "arn:aws:iam::533359187263:role/service-role/SP_ServiceRoleForConfigAndS3"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
-  filename      = "${path.module}/lambdas/s3-public-access-block/lambda_function.zip"
+#  filename      = "${path.module}/lambdas/s3-public-access-block/lambda_function.zip"
+  filename     = "${path.module}/lambdas/s3-public-access-block/zipfile/s3-public-access-block.zip"
+  source_code_hash = "${data.archive_file.s3-public-access-block-zip2.output_base64sha256}"
   memory_size = "256"
   timeout     = "30"
 }
