@@ -29,7 +29,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   role          = "arn:aws:iam::533359187263:role/service-role/SP_ServiceRoleForConfigAndS3"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
-  filename      = "${archive_file.s3-public-access-block-zip2.output_path"
+  filename      = "${archive_file.s3-public-access-block-zip2.output_path}"
   memory_size = "256"
   timeout     = "30"
 }
