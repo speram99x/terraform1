@@ -49,7 +49,7 @@ resource "aws_lambda_permission" "example" {
   statement_id  = "AllowExecutionFromConfig"
 }
 
-resource "aws_config_config_rule" "example" {
+resource "aws_config_config_rule" "test_rule_1" {
   # ... other configuration ...
   name = "test_rule_1"
 
