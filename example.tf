@@ -44,7 +44,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
 
 resource "aws_lambda_permission" "example" {
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.s3_public_access_block_lambda.arn}"
+  function_name = "${aws_lambda_function.s3_public_access_block_lambda.function_name}"
   principal     = "config.amazonaws.com"
   statement_id  = "AllowExecutionFromConfig"
 }
