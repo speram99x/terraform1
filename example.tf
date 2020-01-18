@@ -62,6 +62,11 @@ resource "aws_config_config_rule" "test_rule_1" {
   source {
     owner             = "CUSTOM_LAMBDA"
     source_identifier = "${aws_lambda_function.s3_public_access_block_lambda.arn}"
+    
+    source_detail {
+      event_source = "aws.config" # XXX
+      message_type = "ConfigurationItemChangeNotification"
+    }
   }
 
   # depends_on = ["aws_config_configuration_recorder.example", "aws_lambda_permission.example"]
