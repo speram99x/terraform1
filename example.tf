@@ -41,3 +41,29 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   memory_size = "256"
   timeout     = "30"
 }
+
+resource "aws_lambda_permission" "example" {
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.s3_public_access_block_lambda.arn}"
+  principal     = "config.amazonaws.com"
+  statement_id  = "AllowExecutionFromConfig"
+}
+
+resource "aws_config_config_rule" "example" {
+  # ... other configuration ...
+  name = "test_rule_1"
+
+  scope {
+    compliance_resource_types = [
+      "AWS::S3::Bucket"
+    ]
+  }
+
+  source {
+    owner             = "CUSTOM_LAMBDA"
+    source_identifier = "${aws_lambda_function.s3_public_access_block_lambda.arn}"
+  }
+
+  # depends_on = ["aws_config_configuration_recorder.example", "aws_lambda_permission.example"]
+  depends_on = ["aws_lambda_permission.example"]
+}
