@@ -86,7 +86,7 @@ resource "aws_config_configuration_recorder_status" "foo" {
 }
 
 resource "aws_config_delivery_channel" "main_channel" {
-  name           = "config_main_channel"
+  name           = "default"
   s3_bucket_name = "${aws_s3_bucket.config_recorder_bucket.bucket}"
 }
 
