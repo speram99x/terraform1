@@ -51,7 +51,7 @@ resource "aws_lambda_permission" "example" {
 
 resource "aws_config_config_rule" "test_rule_1" {
   # ... other configuration ...
-  name = "test_rule_1"
+  name = "sp-check-s3-public-access-rule-2"
 
   scope {
     compliance_resource_types = [
