@@ -96,7 +96,7 @@ resource "aws_s3_bucket" "config_recorder_bucket" {
 }
 
 resource "aws_config_configuration_recorder" "main_recorder" {
-  name     = "example"
+  name     = "default"
   role_arn = "${aws_iam_role.config_recorder_role.arn}"
 }
 
