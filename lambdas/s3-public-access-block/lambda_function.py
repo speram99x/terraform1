@@ -186,4 +186,4 @@ def lambda_handler(event, context):
 				'OrderingTimestamp': invoking_event['configurationItem']['configurationItemCaptureTime']
 			},
 		],
-		ResultToken=event['resultToken']
+		ResultToken=event['resultToken'])
