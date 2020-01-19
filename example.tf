@@ -80,7 +80,7 @@ resource "aws_config_config_rule" "test_rule_1" {
 #
 
 resource "aws_config_configuration_recorder_status" "foo" {
-  name       = "${aws_config_configuration_recorder.foo.name}"
+  name       = "${aws_config_configuration_recorder.main_recorder.name}"
   is_enabled = true
   depends_on = ["aws_config_delivery_channel.main_channel"]
 }
