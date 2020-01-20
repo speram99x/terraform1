@@ -266,12 +266,17 @@ resource "aws_iam_role_policy_attachment" "lambda-role-policy-attach" {
 }
 
 
+#
+# LAMBDA - for S3 Public Access Block
+#
+
 data "archive_file" "s3-public-access-block-zip2" {
   type        = "zip"
   source_file = "${path.module}/lambdas/s3-public-access-block/lambda_function.py"
   output_path = "${path.module}/lambdas/s3-public-access-block/zipfile/s3-public-access-block.zip"
 }
 
+#
 #
 # TODO: Change the name of the central policy bucket as appropriate
 #
@@ -297,7 +302,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   	
 }
 
-resource "aws_lambda_permission" "example" {
+resource "aws_lambda_permission" "s3_public_access_block_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.s3_public_access_block_lambda.function_name}"
   principal     = "config.amazonaws.com"
@@ -324,10 +329,81 @@ resource "aws_config_config_rule" "test_rule_1" {
   }
 
   depends_on = [
-  	"aws_lambda_permission.example",
+  	"aws_lambda_permission.s3_public_access_block_lambda",
   	"aws_config_configuration_recorder.main_recorder"
   	]
 }
+
+
+#
+# LAMBDA - for checking unrestricted security groups
+#
+
+data "archive_file" "sg-unrestricted-security-groups-zip" {
+  type        = "zip"
+  source_file = "${path.module}/lambdas/sg-unrestricted-security-groups/lambda_function.py"
+  output_path = "${path.module}/lambdas/sg-unrestricted-security-groups/zipfile/sg-unrestricted-security-groups.zip"
+}
+
+#
+# TODO: Change the name of the central policy bucket as appropriate
+#
+resource "aws_lambda_function" "sg_unrestricted_security_groups" {
+  function_name = "sg_unrestricted_security_groups_2"
+  role          = aws_iam_role.sp_lambda_role.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.8"
+  filename     = "${path.module}/lambdas/sg-unrestricted-security-groups/zipfile/sg-unrestricted-security-groups.zip"
+  source_code_hash = "${data.archive_file.sg-unrestricted-security-groups-zip.output_base64sha256}"
+  memory_size = "256"
+  timeout     = "30"
+  
+  environment {
+    variables = {
+      "CENTRAL_POLICY_BUCKET" = "sp-central-policy-bucket"
+    }
+  }
+
+  depends_on = [
+  	"aws_iam_role_policy_attachment.lambda-role-policy-attach"
+  	]
+  	
+}
+
+resource "aws_lambda_permission" "sg-unrestricted-security-groups" {
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.s3_public_access_block_lambda.function_name}"
+  principal     = "config.amazonaws.com"
+  statement_id  = "AllowExecutionFromConfig"
+}
+
+resource "aws_config_config_rule" "sp-check-unrestricted-security-groups-rule" {
+  name = "sp-check-unrestricted-security-groups-rule-2"
+
+  scope {
+    compliance_resource_types = [
+      "AWS::EC2::SecurityGroup"
+    ]
+  }
+
+  source {
+    owner             = "CUSTOM_LAMBDA"
+    source_identifier = "${aws_lambda_function.sg_unrestricted_security_groups.arn}"
+    
+    source_detail {
+      event_source = "aws.config" # XXX
+      message_type = "ConfigurationItemChangeNotification"
+    }
+  }
+
+  depends_on = [
+  	"aws_lambda_permission.sg-unrestricted-security-groups",
+  	"aws_config_configuration_recorder.main_recorder"
+  	]
+}
+
+
+
 
 #
 #
