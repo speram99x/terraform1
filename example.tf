@@ -30,8 +30,8 @@ resource "aws_instance" "example" {
 #
 # TODO: Change the name of the role as appropriate
 #
-resource "aws_iam_role" "sp-lambda-role" {
-  name = "sp-lambda-role"
+resource "aws_iam_role" "sp_lambda_role" {
+  name = "sp_lambda_role"
 
   assume_role_policy = <<EOF
     {
@@ -50,8 +50,8 @@ resource "aws_iam_role" "sp-lambda-role" {
 EOF
 }
 
-resource "aws_iam_policy" "sp-lambda-policy" {
-  name        = "sp-lambda-policy"
+resource "aws_iam_policy" "sp_lambda_policy" {
+  name        = "sp_lambda_policy"
   description = "Policy for Lambda Role"
 
   policy = <<EOF
@@ -263,8 +263,8 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attach" {
-  role       = "${aws_iam_role.sp-lambda-role.name}"
-  policy_arn = "${aws_iam_policy.sp-lambda-policy.arn}"
+  role       = "${aws_iam_role.sp_lambda_role.name}"
+  policy_arn = "${aws_iam_policy.sp_lambda_policy.arn}"
 }
 
 
@@ -279,7 +279,7 @@ data "archive_file" "s3-public-access-block-zip2" {
 #
 resource "aws_lambda_function" "s3_public_access_block_lambda" {
   function_name = "sp-s3-public-access-block-lambda-2"
-  role          = aws_iam_role.sp-lambda-role.arn
+  role          = aws_iam_role.sp_lambda_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
   filename     = "${path.module}/lambdas/s3-public-access-block/zipfile/s3-public-access-block.zip"
