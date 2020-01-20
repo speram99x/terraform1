@@ -11,6 +11,7 @@
 import boto3
 import botocore
 import json
+import os
 
 APPLICABLE_RESOURCES = ["AWS::S3::Bucket"]
 
@@ -143,7 +144,9 @@ def lambda_handler(event, context):
 	
 	account_id = context.invoked_function_arn.split(":")[4]
 	s3 = boto3.client('s3')
-	bucket = 'sp-central-policy-bucket'
+	
+	bucket = os.environ["CENTRAL_POLICY_BUCKET"]
+	# bucket = 'sp-central-policy-bucket'
 	key = 'main_policy.txt'
 	obj = s3.get_object(Bucket=bucket, Key=key)
 	j = json.loads(obj['Body'].read())
