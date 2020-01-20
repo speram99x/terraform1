@@ -256,8 +256,8 @@ resource "aws_iam_policy" "sp-lambda-policy" {
                 "logs:PutLogEvents"
 		],
 		"Resource": "*"
-    }    
-  ]
+    }
+   ]
 }
 EOF
 }
