@@ -54,8 +54,8 @@ resource "aws_iam_policy" "sp_lambda_policy" {
   name        = "sp_lambda_policy"
   description = "Policy for Lambda Role"
 
-  policy = <<EOF
-{
+  policy =
+  {
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -257,8 +257,7 @@ resource "aws_iam_policy" "sp_lambda_policy" {
 		"Resource": "*"
     }
    ]
-}
-EOF
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attach" {
