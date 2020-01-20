@@ -304,7 +304,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
 
 resource "aws_lambda_permission" "s3_public_access_block_lambda" {
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.s3_public_access_block_lambda.function_name}"
+  function_name = aws_lambda_function.s3_public_access_block_lambda.function_name
   principal     = "config.amazonaws.com"
   statement_id  = "AllowExecutionFromConfig"
 }
@@ -372,7 +372,7 @@ resource "aws_lambda_function" "sg_unrestricted_security_groups" {
 
 resource "aws_lambda_permission" "sg-unrestricted-security-groups" {
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.sg_unrestricted_security_groups.function_name}"
+  function_name = aws_lambda_function.sg_unrestricted_security_groups.function_name
   principal     = "config.amazonaws.com"
   statement_id  = "AllowExecutionFromConfig"
 }
@@ -440,7 +440,7 @@ resource "aws_lambda_function" "sg_launch_wizard" {
 
 resource "aws_lambda_permission" "sg_launch_wizard" {
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.sg_launch_wizard.function_name}"
+  function_name = aws_lambda_function.sg_launch_wizard.function_name
   principal     = "config.amazonaws.com"
   statement_id  = "AllowExecutionFromConfig"
 }
@@ -480,7 +480,7 @@ resource "aws_config_config_rule" "sp_check_launch_wizard_security_group_rule" {
 #
 
 resource "aws_config_configuration_recorder_status" "foo" {
-  name       = "${aws_config_configuration_recorder.main_recorder.name}"
+  name       = aws_config_configuration_recorder.main_recorder.name
   is_enabled = true
   depends_on = [aws_config_delivery_channel.main_channel]
 }

@@ -77,13 +77,14 @@ def evaluate_compliance(configuration_item, included_items, excluded_items, debu
 	if configuration_item["resourceType"] not in APPLICABLE_RESOURCES:
 		compliance_type = 'NOT_APPLICABLE'
 		annotation = "The rule doesn't apply to resources of type " + configuration_item["resourceType"] + "."
-	if configuration_item['configuration'] is None:
+	if not('configuration' in configuration_item):
 		return {
 			"compliance_type": compliance_type,
 			"annotation": "There are no resources to evaluate"
 		}
-	if configuration_item['configuration']['groups'] is None:
-		if not(configuration_item['configuration']['groups'] is None):
+	
+	if not('groups' in configuration_item['configuration']):
+		if 'groupId' in configuration_item['configuration']:
 			single_sg_id = configuration_item['configuration']['groupId']
 			return evaluate_security_group(single_sg_id, included_items, excluded_items, debug_enabled)
 		else:
