@@ -14,59 +14,6 @@ import os
 
 APPLICABLE_RESOURCES = ["AWS::EC2::NetworkInterface"]
 
-def evaluate_security_group(sg_groupId, included_items, excluded_items, debug_enabled)
-	compliance_type = 'COMPLIANT'
-	annotation = "Resource is compliant."
-	# Call describe_security_groups because the IpPermissions that are returned
-	# are in a format that can be used as the basis for input to
-	# authorize_security_group_ingress and revoke_security_group_ingress.
-	client = boto3.client("ec2");
-	if (sg_groupId in excluded_items):
-		print("Launch-wizard security group is in excluded group: ", sg_groupId)
-		annotation = "Launch-wizard security group " + sg_groupId + " is in excluded groups"
-		return {
-			"compliance_type": compliance_type,
-			"annotation": annotation
-		}
-	if (not("all" in included_items)) and (not(sg_groupId in included_items)):
-		print("Launch-wizard security group is not in included items: ", sg_groupId)
-		annotation = "Launch-wizard security group " + sg_groupId + " is not in included groups"
-		return {
-			"compliance_type": compliance_type,
-			"annotation": annotation
-		}
-
-	try:
-		response = client.describe_security_groups(GroupIds=[sg_groupId])
-	except botocore.exceptions.ClientError as e:
-		return {
-			"compliance_type" : "NON_COMPLIANT",
-			"annotation" : "describe_security_groups failure on group " + group_id
-		}
-	if debug_enabled:
-		print("security group definition: ", json.dumps(response, indent=2))
-
-	ip_permissions = response["SecurityGroups"][0]["IpPermissions"]
-	ip_permissions_egress = response["SecurityGroups"][0]["IpPermissionsEgress"]
-
-	try:
-		if (len(ip_permissions) != 0):
-			client.revoke_security_group_ingress(GroupId=sg_groupId, IpPermissions=ip_permissions)
-		if (len(ip_permissions_egress) != 0):
-			client.revoke_security_group_egress(GroupId=sg_groupId, IpPermissions=ip_permissions_egress)
-	except botocore.exceptions.ClientError as e:
-		return {
-			"compliance_type" : "NON_COMPLIANT",
-			"annotation" : "revoke_security_group_ingress failure on group " + sg_groupId
-		}    
-	compliance_type = 'NON_COMPLIANT'
-	annotation = 'Removed IP permissions from a launch-wizard security group ' + sg['groupName'] + ' that was attached to ' + configuration_item['configuration']['privateIpAddress']
-	return {
-		"compliance_type": compliance_type,
-		"annotation": annotation
-	}
-
-
 def evaluate_compliance(configuration_item, included_items, excluded_items, debug_enabled):
 	# Start as compliant
 	compliance_type = 'COMPLIANT'
@@ -82,22 +29,46 @@ def evaluate_compliance(configuration_item, included_items, excluded_items, debu
 			"compliance_type": compliance_type,
 			"annotation": "There are no resources to evaluate"
 		}
-	if configuration_item['configuration']['groups'] is None:
-		if not(configuration_item['configuration']['groups'] is None):
-			single_sg_id = configuration_item['configuration']['groupId']
-			return evaluate_security_group(single_sg_id, included_items, excluded_items, debug_enabled)
-		else:
-			return {
-				"compliance_type": compliance_type,
-				"annotation": "There are no resources to evaluate"
-			}
 	
 	# Iterate over security groups
 	for sg in configuration_item['configuration']['groups']:
 		if "launch-wizard" in sg['groupName']:
+			client = boto3.client("ec2");
+			# Call describe_security_groups because the IpPermissions that are returned
+			# are in a format that can be used as the basis for input to
+			# authorize_security_group_ingress and revoke_security_group_ingress.
 			sg_groupId = sg['groupId']
-			return evaluate_security_group(sg_groupId, included_items, excluded_items, debug_enabled)
-	
+			if (sg_groupId in excluded_items):
+				print("Launch-wizard security group is in excluded group: ", sg_groupId)
+				continue
+			if (not("all" in included_items)) and (not(sg_groupId in included_items)):
+				print("Launch-wizard security group is not in included items: ", sg_groupId)
+				continue
+			try:
+				response = client.describe_security_groups(GroupIds=[sg_groupId])
+			except botocore.exceptions.ClientError as e:
+				return {
+					"compliance_type" : "NON_COMPLIANT",
+					"annotation" : "describe_security_groups failure on group " + group_id
+				}
+			if debug_enabled:
+				print("security group definition: ", json.dumps(response, indent=2))
+
+			ip_permissions = response["SecurityGroups"][0]["IpPermissions"]
+			ip_permissions_egress = response["SecurityGroups"][0]["IpPermissionsEgress"]
+
+			try:
+				if (len(ip_permissions) != 0):
+					client.revoke_security_group_ingress(GroupId=sg_groupId, IpPermissions=ip_permissions)
+				if (len(ip_permissions_egress) != 0):
+					client.revoke_security_group_egress(GroupId=sg_groupId, IpPermissions=ip_permissions_egress)
+			except botocore.exceptions.ClientError as e:
+				return {
+					"compliance_type" : "NON_COMPLIANT",
+					"annotation" : "revoke_security_group_ingress failure on group " + sg_groupId
+				}    
+			compliance_type = 'NON_COMPLIANT'
+			annotation = 'Removed IP permissions from a launch-wizard security group ' + sg['groupName'] + ' that was attached to ' + configuration_item['configuration']['privateIpAddress']
 	return {
 		"compliance_type": compliance_type,
 		"annotation": annotation
