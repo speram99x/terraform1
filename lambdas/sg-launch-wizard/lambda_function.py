@@ -60,7 +60,7 @@ def evaluate_security_group(sg_groupId, included_items, excluded_items, debug_en
 			"annotation" : "revoke_security_group_ingress failure on group " + sg_groupId
 		}    
 	compliance_type = 'NON_COMPLIANT'
-	annotation = 'Removed IP permissions from a launch-wizard security group ' + sg['groupName'] + ' that was attached to ' + configuration_item['configuration']['privateIpAddress']
+	annotation = 'Removed IP permissions from a launch-wizard security group ' + sg_groupId
 	return {
 		"compliance_type": compliance_type,
 		"annotation": annotation
