@@ -47,7 +47,7 @@
 import boto3
 import botocore
 import json
-
+import os
  
 APPLICABLE_RESOURCES = ["AWS::EC2::SecurityGroup"]
 
@@ -173,26 +173,28 @@ def evaluate_compliance(configuration_item, included_items, excluded_items, debu
         "annotation": annotation_message
     }
 
+
+
+
+#
 # lambda_handler
-# 
 # This is the main handle for the Lambda function.  AWS Lambda passes the function an event and a context.
 # If "debug" is specified as a rule parameter, then debugging is enabled.
-
 # This is where execution starts
 def lambda_handler(event, context):
     debug_enabled = True
 # BEGIN - test code only
-    if debug_enabled:
-        print("BEGIN TEST OUTPUT")
-        client = boto3.client("ec2");
-        response = client.describe_security_groups(GroupIds=["sg-00e5c180711bc0ead"])
-        ip_permissions = response["SecurityGroups"][0]["IpPermissions"]
-        for item in ip_permissions:
-            print("IP Permission= " + item["IpRanges"][0]["CidrIp"])
-        revoke_permissions = [item for item in ip_permissions if item["IpRanges"][0]["CidrIp"] == "0.0.0.0/0"]
-        print("Revoke Permissions= ")
-        print(revoke_permissions)
-        print("END TEST OUTPUT")
+#    if debug_enabled:
+#        print("BEGIN TEST OUTPUT")
+#        client = boto3.client("ec2");
+#        response = client.describe_security_groups(GroupIds=["sg-00e5c180711bc0ead"])
+#        ip_permissions = response["SecurityGroups"][0]["IpPermissions"]
+#        for item in ip_permissions:
+#            print("IP Permission= " + item["IpRanges"][0]["CidrIp"])
+#        revoke_permissions = [item for item in ip_permissions if item["IpRanges"][0]["CidrIp"] == "0.0.0.0/0"]
+#        print("Revoke Permissions= ")
+#        print(revoke_permissions)
+#        print("END TEST OUTPUT")
 # END - test code only
 
 # use json module to parse the event
@@ -206,7 +208,8 @@ def lambda_handler(event, context):
         print("Lambda for EC2 security groups started")
 
     s3 = boto3.client('s3')
-    bucket = 'sp-central-policy-bucket'
+    bucket = os.environ["CENTRAL_POLICY_BUCKET"]
+    # bucket = 'sp-central-policy-bucket'
     key = 'main_policy.txt'
     obj = s3.get_object(Bucket=bucket, Key=key)
     j = json.loads(obj['Body'].read())
