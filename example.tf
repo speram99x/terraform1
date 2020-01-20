@@ -59,8 +59,6 @@ resource "aws_iam_policy" "sp_lambda_policy" {
   "Version": "2012-10-17",
   "Statement": [
     {
-		"Sid": "Stmt-for-Lambda-Policy",
-		"Effect": "Allow",
 		"Action": [
 				"cloudwatch:*",
                 "config:BatchGet*",
@@ -255,6 +253,7 @@ resource "aws_iam_policy" "sp_lambda_policy" {
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
 		],
+		"Effect": "Allow",
 		"Resource": "*"
     }
    ]
