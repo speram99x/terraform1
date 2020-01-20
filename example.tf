@@ -261,8 +261,8 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attach" {
-  role       = "${aws_iam_role.sp_lambda_role.name}"
-  policy_arn = "${aws_iam_policy.sp_lambda_policy.arn}"
+  role       = aws_iam_role.sp_lambda_role.name
+  policy_arn = aws_iam_policy.sp_lambda_policy.arn
 }
 
 
@@ -297,7 +297,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   }
 
   depends_on = [
-  	"aws_iam_role_policy_attachment.lambda-role-policy-attach"
+  	aws_iam_role_policy_attachment.lambda-role-policy-attach
   	]
   	
 }
@@ -329,8 +329,8 @@ resource "aws_config_config_rule" "test_rule_1" {
   }
 
   depends_on = [
-  	"aws_lambda_permission.s3_public_access_block_lambda",
-  	"aws_config_configuration_recorder.main_recorder"
+  	aws_lambda_permission.s3_public_access_block_lambda,
+  	aws_config_configuration_recorder.main_recorder
   	]
 }
 
@@ -365,7 +365,7 @@ resource "aws_lambda_function" "sg_unrestricted_security_groups" {
   }
 
   depends_on = [
-  	"aws_iam_role_policy_attachment.lambda-role-policy-attach"
+  	aws_iam_role_policy_attachment.lambda-role-policy-attach
   	]
   	
 }
@@ -397,8 +397,8 @@ resource "aws_config_config_rule" "sp-check-unrestricted-security-groups-rule" {
   }
 
   depends_on = [
-  	"aws_lambda_permission.sg-unrestricted-security-groups",
-  	"aws_config_configuration_recorder.main_recorder"
+  	aws_lambda_permission.sg-unrestricted-security-groups,
+  	aws_config_configuration_recorder.main_recorder
   	]
 }
 
@@ -433,7 +433,7 @@ resource "aws_lambda_function" "sg_launch_wizard" {
   }
 
   depends_on = [
-  	"aws_iam_role_policy_attachment.lambda-role-policy-attach"
+  	aws_iam_role_policy_attachment.lambda-role-policy-attach
   	]
   	
 }
@@ -465,8 +465,8 @@ resource "aws_config_config_rule" "sp_check_launch_wizard_security_group_rule" {
   }
 
   depends_on = [
-  	"aws_lambda_permission.sg_launch_wizard",
-  	"aws_config_configuration_recorder.main_recorder"
+  	aws_lambda_permission.sg_launch_wizard,
+  	aws_config_configuration_recorder.main_recorder
   	]
 }
 
