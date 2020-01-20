@@ -525,7 +525,7 @@ POLICY
 # With privileges to write to the S3 bucket
 resource "aws_iam_role_policy" "p" {
   name = "awsconfig-example"
-  role = "${aws_iam_role.config_recorder_role.id}"
+  role = aws_iam_role.config_recorder_role.id
 
   policy = <<POLICY
 {

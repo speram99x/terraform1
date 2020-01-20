@@ -85,8 +85,14 @@ def evaluate_compliance(configuration_item, included_items, excluded_items, debu
 	
 	if not('groups' in configuration_item['configuration']):
 		if 'groupId' in configuration_item['configuration']:
-			single_sg_id = configuration_item['configuration']['groupId']
-			return evaluate_security_group(single_sg_id, included_items, excluded_items, debug_enabled)
+			if "launch-wizard" in configuration_item['configuration']['groupName']:
+				single_sg_id = configuration_item['configuration']['groupId']
+				return evaluate_security_group(single_sg_id, included_items, excluded_items, debug_enabled)
+			else:
+				return {
+					"compliance_type": compliance_type,
+					"annotation": "This is not a launch-wizard security group"
+				}			
 		else:
 			return {
 				"compliance_type": compliance_type,
@@ -120,7 +126,8 @@ def lambda_handler(event, context):
 	key = 'main_policy.txt'
 	obj = s3.get_object(Bucket=bucket, Key=key)
 	j = json.loads(obj['Body'].read())
-	print("Received master policy: " + json.dumps(j, indent=2))
+	if debug_enabled:
+		print("Received master policy: " + json.dumps(j, indent=2))
 
 	included_items = ["all"]
 	excluded_items = ["none"]
@@ -130,7 +137,8 @@ def lambda_handler(event, context):
 	account_policy_object = s3.get_object(Bucket=bucket, Key=key)
 	if not(account_policy_object is None):
 		ap = json.loads(account_policy_object['Body'].read())
-		print("Received account specific policy: " + json.dumps(ap, indent=2))
+		if debug_enabled:
+			print("Received account specific policy: " + json.dumps(ap, indent=2))
 
 	policies_enabled = False
 	for item in j['policies']:
@@ -149,8 +157,8 @@ def lambda_handler(event, context):
 
 	config = boto3.client('config')
 
-	print('Compliance evaluation for %s: %s', (configuration_item['resourceId'], evaluation["compliance_type"]))
-	print('Annotation: %s', (evaluation["annotation"]))
+	print('Compliance evaluation for ', (configuration_item['resourceId'], evaluation["compliance_type"]))
+	print('Annotation: ', (evaluation["annotation"]))
 
 	response = config.put_evaluations(
 		Evaluations=[
