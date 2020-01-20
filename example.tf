@@ -66,7 +66,7 @@ resource "aws_iam_policy" "sp_lambda_policy" {
 		"Effect": "Allow",
 		"Resource": "*"
     }
-   ]
+  ]
 }
 EOF
 }
