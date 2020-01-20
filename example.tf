@@ -372,7 +372,7 @@ resource "aws_lambda_function" "sg_unrestricted_security_groups" {
 
 resource "aws_lambda_permission" "sg-unrestricted-security-groups" {
   action        = "lambda:InvokeFunction"
-  function_name = "${aws_lambda_function.s3_public_access_block_lambda.function_name}"
+  function_name = "${aws_lambda_function.sg_unrestricted_security_groups.function_name}"
   principal     = "config.amazonaws.com"
   statement_id  = "AllowExecutionFromConfig"
 }
