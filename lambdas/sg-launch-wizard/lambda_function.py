@@ -12,7 +12,7 @@ import botocore
 import json
 import os
 
-APPLICABLE_RESOURCES = ["AWS::EC2::NetworkInterface"]
+APPLICABLE_RESOURCES = ["AWS::EC2::SecurityGroup"]
 
 def evaluate_security_group(sg_groupId, included_items, excluded_items, debug_enabled):
 	compliance_type = 'COMPLIANT'
