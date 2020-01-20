@@ -14,7 +14,7 @@ import os
 
 APPLICABLE_RESOURCES = ["AWS::EC2::NetworkInterface"]
 
-def evaluate_security_group(sg_groupId, included_items, excluded_items, debug_enabled)
+def evaluate_security_group(sg_groupId, included_items, excluded_items, debug_enabled):
 	compliance_type = 'COMPLIANT'
 	annotation = "Resource is compliant."
 	# Call describe_security_groups because the IpPermissions that are returned

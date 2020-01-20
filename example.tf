@@ -286,7 +286,7 @@ resource "aws_lambda_function" "s3_public_access_block_lambda" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
   filename     = "${path.module}/lambdas/s3-public-access-block/zipfile/s3-public-access-block.zip"
-  source_code_hash = "${data.archive_file.s3-public-access-block-zip2.output_base64sha256}"
+  source_code_hash = data.archive_file.s3-public-access-block-zip2.output_base64sha256
   memory_size = "256"
   timeout     = "30"
   
@@ -320,7 +320,7 @@ resource "aws_config_config_rule" "test_rule_1" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.s3_public_access_block_lambda.arn}"
+    source_identifier = aws_lambda_function.s3_public_access_block_lambda.arn
     
     source_detail {
       event_source = "aws.config" # XXX
@@ -353,8 +353,8 @@ resource "aws_lambda_function" "sg_unrestricted_security_groups" {
   role          = aws_iam_role.sp_lambda_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
-  filename     = "${path.module}/lambdas/sg-unrestricted-security-groups/zipfile/sg-unrestricted-security-groups.zip"
-  source_code_hash = "${data.archive_file.sg-unrestricted-security-groups-zip.output_base64sha256}"
+  filename     = data.archive_file.sg-unrestricted-security-groups-zip.output_path
+  source_code_hash = data.archive_file.sg-unrestricted-security-groups-zip.output_base64sha256
   memory_size = "256"
   timeout     = "30"
   
@@ -388,7 +388,7 @@ resource "aws_config_config_rule" "sp-check-unrestricted-security-groups-rule" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.sg_unrestricted_security_groups.arn}"
+    source_identifier = aws_lambda_function.sg_unrestricted_security_groups.arn
     
     source_detail {
       event_source = "aws.config" # XXX
@@ -456,7 +456,7 @@ resource "aws_config_config_rule" "sp_check_launch_wizard_security_group_rule" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.sg_launch_wizard.arn}"
+    source_identifier = aws_lambda_function.sg_launch_wizard.arn
     
     source_detail {
       event_source = "aws.config" # XXX
@@ -482,12 +482,12 @@ resource "aws_config_config_rule" "sp_check_launch_wizard_security_group_rule" {
 resource "aws_config_configuration_recorder_status" "foo" {
   name       = "${aws_config_configuration_recorder.main_recorder.name}"
   is_enabled = true
-  depends_on = ["aws_config_delivery_channel.main_channel"]
+  depends_on = [aws_config_delivery_channel.main_channel]
 }
 
 resource "aws_config_delivery_channel" "main_channel" {
   name           = "default"
-  s3_bucket_name = "${aws_s3_bucket.config_recorder_bucket.bucket}"
+  s3_bucket_name = aws_s3_bucket.config_recorder_bucket.bucket
 }
 
 # S3 bucket to write the configuration changes
@@ -497,7 +497,7 @@ resource "aws_s3_bucket" "config_recorder_bucket" {
 
 resource "aws_config_configuration_recorder" "main_recorder" {
   name     = "default"
-  role_arn = "${aws_iam_role.config_recorder_role.arn}"
+  role_arn = aws_iam_role.config_recorder_role.arn
 }
 
 # New role for the recorder
@@ -553,7 +553,7 @@ POLICY
 }
 
 resource "aws_iam_role_policy_attachment" "a" {
-  role       = "${aws_iam_role.config_recorder_role.name}"
+  role       = aws_iam_role.config_recorder_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
 }
 
