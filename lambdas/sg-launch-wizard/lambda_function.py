@@ -77,6 +77,10 @@ def evaluate_compliance(configuration_item, included_items, excluded_items, debu
 	if configuration_item["resourceType"] not in APPLICABLE_RESOURCES:
 		compliance_type = 'NOT_APPLICABLE'
 		annotation = "The rule doesn't apply to resources of type " + configuration_item["resourceType"] + "."
+		return {
+			"compliance_type": compliance_type,
+			"annotation": annotation
+		}
 	if not('configuration' in configuration_item):
 		return {
 			"compliance_type": compliance_type,
