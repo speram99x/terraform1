@@ -403,6 +403,74 @@ resource "aws_config_config_rule" "sp-check-unrestricted-security-groups-rule" {
 }
 
 
+#
+# LAMBDA - for checking and disabling launch-wizard security groups
+#
+
+data "archive_file" "sg-launch-wizard-zip" {
+  type        = "zip"
+  source_file = "${path.module}/lambdas/sg-launch-wizard/lambda_function.py"
+  output_path = "${path.module}/lambdas/sg-launch-wizard/zipfile/sg-launch-wizard.zip"
+}
+
+#
+# TODO: Change the name of the central policy bucket as appropriate
+#
+resource "aws_lambda_function" "sg_launch_wizard" {
+  function_name = "sg_launch_wizard_2"
+  role          = aws_iam_role.sp_lambda_role.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.8"
+  filename      = data.archive_file.sg-laumch-wizard-zip.output_path
+  source_code_hash = data.archive_file.sg-launch-wizard-zip.output_base64sha256
+  memory_size = "256"
+  timeout     = "30"
+  
+  environment {
+    variables = {
+      "CENTRAL_POLICY_BUCKET" = "sp-central-policy-bucket"
+    }
+  }
+
+  depends_on = [
+  	"aws_iam_role_policy_attachment.lambda-role-policy-attach"
+  	]
+  	
+}
+
+resource "aws_lambda_permission" "sg-launch-wizard" {
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.sg_launch_wizard.function_name}"
+  principal     = "config.amazonaws.com"
+  statement_id  = "AllowExecutionFromConfig"
+}
+
+resource "aws_config_config_rule" "sp-check-launch-wizard-security-group-rule" {
+  name = "sp-check-launch-wizard-security-group-rule-2"
+
+  scope {
+    compliance_resource_types = [
+      "AWS::EC2::SecurityGroup"
+    ]
+  }
+
+  source {
+    owner             = "CUSTOM_LAMBDA"
+    source_identifier = "${aws_lambda_function.sg_launch_wizard.arn}"
+    
+    source_detail {
+      event_source = "aws.config" # XXX
+      message_type = "ConfigurationItemChangeNotification"
+    }
+  }
+
+  depends_on = [
+  	"aws_lambda_permission.sg-launch-wizard",
+  	"aws_config_configuration_recorder.main_recorder"
+  	]
+}
+
+
 
 
 #
